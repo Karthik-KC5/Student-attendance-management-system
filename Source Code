@@ -1,0 +1,79 @@
+class Student:
+    def __init__(self, name, num_subjects):
+        self.name = name
+        self.num_subjects = num_subjects
+        self.subjects = {}
+        for i in range(num_subjects):
+            sub_name = input(f"Enter name of subject {i+1}: ")
+            attended = int(input(f"Enter number of classes attended for {sub_name}: "))
+            completed = int(input(f"Enter number of classes completed for {sub_name}: "))
+            self.subjects[sub_name] = {"attended": attended, "completed": completed}
+
+    def add_day(self):
+        print("\nMark attendance for today:")
+        for subject in self.subjects:
+            self.subjects[subject]["completed"] += 1
+            attended = input(f"Did the student attend class for {subject}? (y/n): ").strip().lower()
+            if attended == 'y':
+                self.subjects[subject]["attended"] += 1
+
+    def get_attendance_percentage(self, subject):
+        record = self.subjects[subject]
+        if record["completed"] == 0:
+            return 0.0
+        return (record["attended"] / record["completed"]) * 100
+
+    def get_fail_status(self):
+        failed_subjects = []
+        for subject in self.subjects:
+            if self.get_attendance_percentage(subject) < 50:
+                failed_subjects.append(subject)
+        return failed_subjects
+
+    def days_needed_to_pass(self, subject):
+        attended = self.subjects[subject]["attended"]
+        completed = self.subjects[subject]["completed"]
+        x = max(0, completed - 2 * attended)
+        return x
+
+    def max_classes_can_miss(self, subject):
+        attended = self.subjects[subject]["attended"]
+        completed = self.subjects[subject]["completed"]
+        x = max(0, (2 * attended - completed))
+        return x
+
+    def report(self):
+        print(f"\n--- Attendance Report for {self.name} ---")
+        for subject in self.subjects:
+            perc = self.get_attendance_percentage(subject)
+            print(
+                f"{subject}: Attended {self.subjects[subject]['attended']} / {self.subjects[subject]['completed']} "
+                f"({perc:.2f}%)"
+            )
+            if perc < 50:
+                days_needed = self.days_needed_to_pass(subject)
+                print(f"  -> FAILING. Needs to attend next {days_needed} classes to pass.")
+            else:
+                can_miss = self.max_classes_can_miss(subject)
+                print(f"  -> PASSING. Can miss up to {can_miss} more classes.")
+
+def main():
+    name = input("Enter student name: ")
+    num_subjects = int(input("Enter number of subjects: "))
+    student = Student(name, num_subjects)
+
+    while True:
+        print("\n1. Add today's attendance\n2. Show report\n3. Exit")
+        choice = input("Enter your choice: ").strip()
+        if choice == '1':
+            student.add_day()
+        elif choice == '2':
+            student.report()
+        elif choice == '3':
+            print("Exiting program.")
+            break
+        else:
+            print("Invalid choice. Try again.")
+
+if __name__ == "__main__":
+    main()
